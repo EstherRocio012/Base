@@ -1,5 +1,14 @@
 # IISSI-2 IS: Examen de laboratorio
 
+## ENUNCIADO
+Una vez se ha puesto en marcha la primera versión de DeliverUS, los inversores han solicitado la inclusión de una nueva funcionalidad que consiste en ofrecer a los propietarios la posibilidad de establecer un momento en el que los productos dejarán de ser visibles (visibleUntil).
+
+Un propietario podrá establecer este momento al crear o actualizar un producto con dos escenarios posibles:
+
+Por defecto, este momento será nulo, por lo que se considera que siempre estará visible. Si un propietario establece este momento, el producto solo estará visible hasta la fecha (inclusive). Además se deben cumplir las siguientes reglas de negocio:
+
+Un propietario no podrá establecer un momento de fin anterior al momento actual. Un propierario no podrá establecer un producto como no disponible y, al mismo tiempo, un momento de fin. Finalmente, los productos que estén a una semana o menos de desaparecer aparecerán en la interfaz marcados.
+
 ## Proyecto base suministrado
 
 Este repositorio incluye el backend completo (carpeta `DeliverUS-Backend`) y el frontend de `owner` (carpeta `DeliverUS-Frontend-Owner`). Servirá como base para realizar el examen de laboratorio de la asignatura.
