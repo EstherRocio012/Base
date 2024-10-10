@@ -1,5 +1,16 @@
 # IISSI-2 IS: Examen de laboratorio
 
+## ENUNCIADO
+Make the modifications you consider necessary, both in the backend and in the frontend, to satisfy the new requirements described below.
+
+The company has decided to offer owners the possibility of associating a discount code (e.g: SALES20) to their restaurants, so that the system can later display and apply the specified discount promotion code. As an illustrative example, a restaurant owner could apply the SPRING code associated with a 10% discount to Casa Felix, and another discount code, e.g. EXTREME, associated with a 30% discount to another restaurant.
+
+The system should show the restaurants with the registered discount when both the discount code and the discount value have a value, as shown in the following screenshot:
+
+Remember that:
+
+1.The maximum number of characters of a discount code is 10. 2.The discount is in the range [1, 99]. 3.The discount code cannot be repeated for restaurants owned by the same owner.
+
 ## Proyecto base suministrado
 
 Este repositorio incluye el backend completo (carpeta `DeliverUS-Backend`) y el frontend de `owner` (carpeta `DeliverUS-Frontend-Owner`). Servirá como base para realizar el examen de laboratorio de la asignatura.
