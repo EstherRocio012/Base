@@ -38,6 +38,10 @@ module.exports = {
         },
         onDelete: 'cascade'
       },
+      promoted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       productCategoryId: {
         type: Sequelize.INTEGER,
         allowNull: false,

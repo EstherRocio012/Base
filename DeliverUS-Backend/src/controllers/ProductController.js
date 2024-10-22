@@ -38,6 +38,9 @@ const show = async function (req, res) {
 
 const create = async function (req, res) {
   let newProduct = Product.build(req.body)
+  if (typeof req.file !== 'undefined') {
+    newProduct.image = req.file.destination + '/' + req.file.filename
+  }
   try {
     newProduct = await newProduct.save()
     res.json(newProduct)
@@ -107,12 +110,27 @@ const popular = async function (req, res) {
   }
 }
 
+const toggledPromoted = async function (req, res) {
+  try {
+    const productToBePromoted = await Product.findByPk(req.params.productId)
+    await Product.update(
+      { promoted: !productToBePromoted.promoted },
+      { where: { id: productToBePromoted.id } }
+    )
+    const updatedProduct = await Product.findByPk(req.params.productId)
+    res.json(updatedProduct)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
+
 const ProductController = {
   indexRestaurant,
   show,
   create,
   update,
   destroy,
-  popular
+  popular,
+  toggledPromoted
 }
 export default ProductController

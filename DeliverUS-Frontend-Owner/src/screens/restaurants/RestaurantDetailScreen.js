@@ -4,7 +4,7 @@ import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'r
 import { showMessage } from 'react-native-flash-message'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { getDetail } from '../../api/RestaurantEndpoints'
-import { remove } from '../../api/ProductEndpoints'
+import { remove, promote } from '../../api/ProductEndpoints'
 import ImageCard from '../../components/ImageCard'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
@@ -54,18 +54,51 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  const renderCardTitle = (item) => {
+    return (<>
+      <TextSemiBold style={{ fontSize: 15 }}>
+      {item.name}
+      </TextSemiBold>
+      {restaurant.discountPercentage > 0 && item.promoted &&
+      <TextSemiBold style={{ marginLeft: 5, fontSize: 15, color: GlobalStyles.brandPrimary }}>({restaurant.discountPercentage}% off)</TextSemiBold>}
+    </>)
+  }
   const renderProduct = ({ item }) => {
     return (
       <ImageCard
         imageUri={item.image ? { uri: process.env.API_BASE_URL + '/' + item.image } : defaultProductImage}
-        title={item.name}
+        title={renderCardTitle(item)}
       >
         <TextRegular numberOfLines={2}>{item.description}</TextRegular>
         <TextSemiBold textStyle={styles.price}>{item.price.toFixed(2)}€</TextSemiBold>
+        <View flexDirection='row'>
+          <TextSemiBold textStyle={styles.price}>
+            {item.price.toFixed(2)}€
+            {restaurant.discountPercentage > 0 && item.promoted &&
+            <TextSemiBold style={styles.pricePromoted}>{'Price promoted: ' + (item.price * (1 - restaurant.discountPercentage / 100)).toFixed(2)}€</TextSemiBold>}
+          </TextSemiBold>
+        </View>
+
         {!item.availability &&
           <TextRegular textStyle={styles.availability }>Not available</TextRegular>
         }
          <View style={styles.actionButtonsContainer}>
+          {restaurant.discountPercentage > 0 &&
+          <Pressable
+            onPress={() => { promoteProduct(item) }}
+            style ={({ pressed }) => [{
+              backgroundColor: pressed
+                ? GlobalStyles.brandSuccessTap
+                : GlobalStyles.brandSuccess
+            }, styles.actionButton]}>
+              <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+                <MaterialCommunityIcons name= {item.promoted ? 'start' : 'star-outline'} color={'white'} size={20}/>
+                <TextRegular textStyle={styles.text}>{item.promoted && 'Demote'}{!item.promoted && 'Promote'}</TextRegular>
+
+              </View>
+          </Pressable>
+          }
+
           <Pressable
             onPress={() => navigation.navigate('EditProductScreen', { id: item.id })
             }
@@ -149,6 +182,15 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         style: GlobalStyles.flashStyle,
         titleStyle: GlobalStyles.flashTextStyle
       })
+    }
+  }
+
+  const promoteProduct = async (product) => {
+    try {
+      await promote(product.id)
+      await fetchRestaurantDetail()
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -237,12 +279,22 @@ const styles = StyleSheet.create({
     padding: 10,
     alignSelf: 'center',
     flexDirection: 'column',
-    width: '50%'
+    width: '33%'
   },
   actionButtonsContainer: {
     flexDirection: 'row',
     bottom: 5,
     position: 'absolute',
     width: '90%'
+  },
+  badge: {
+    textAlign: 'center',
+    borderWidth: 2,
+    paddingHorizontal: 10,
+    borderRadius: 10
+  },
+  pricePromoted: {
+    marginLeft: 10,
+    color: GlobalStyles.brandPrimary
   }
 })
