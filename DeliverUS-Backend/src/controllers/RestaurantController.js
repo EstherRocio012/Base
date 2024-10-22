@@ -39,6 +39,12 @@ const indexOwner = async function (req, res) {
 const create = async function (req, res) {
   const newRestaurant = Restaurant.build(req.body)
   newRestaurant.userId = req.user.id // usuario actualmente autenticado
+  if (typeof req.files?.heroImage !== 'undefined') {
+    newRestaurant.heroImage = req.files.heroImage[0].destination + '/' + req.files.heroImage[0].filename
+  }
+  if (typeof req.files?.logo !== 'undefined') {
+    newRestaurant.logo = req.files.logo[0].destination + '/' + req.files.logo[0].filename
+  }
   try {
     const restaurant = await newRestaurant.save()
     res.json(restaurant)
@@ -50,7 +56,11 @@ const create = async function (req, res) {
 const show = async function (req, res) {
   // Only returns PUBLIC information of restaurants
   try {
-    const restaurant = await Restaurant.findByPk(req.params.restaurantId, {
+    let restaurant = await Restaurant.findByPk(req.params.restaurantId)
+    const orderBy = restaurant.sortByPrice
+      ? [[{ model: Product, as: 'products' }, 'price', 'ASC']]
+      : [[{ model: Product, as: 'products' }, 'order', 'ASC']]
+    restaurant = await Restaurant.findByPk(req.params.restaurantId, {
       attributes: { exclude: ['userId'] },
       include: [{
         model: Product,
@@ -61,9 +71,8 @@ const show = async function (req, res) {
         model: RestaurantCategory,
         as: 'restaurantCategory'
       }],
-      order: [[{ model: Product, as: 'products' }, 'order', 'ASC']]
-    }
-    )
+      order: orderBy
+    })
     res.json(restaurant)
   } catch (err) {
     res.status(500).send(err)
@@ -71,6 +80,12 @@ const show = async function (req, res) {
 }
 
 const update = async function (req, res) {
+  if (typeof req.files?.heroImage !== 'undefined') {
+    req.body.heroImage = req.files.heroImage[0].destination + '/' + req.files.heroImage[0].filename
+  }
+  if (typeof req.files?.logo !== 'undefined') {
+    req.body.logo = req.files.logo[0].destination + '/' + req.files.logo[0].filename
+  }
   try {
     await Restaurant.update(req.body, { where: { id: req.params.restaurantId } })
     const updatedRestaurant = await Restaurant.findByPk(req.params.restaurantId)
@@ -95,12 +110,24 @@ const destroy = async function (req, res) {
   }
 }
 
+const toggleProductsSorting = async function (req, res) {
+  try {
+    const restaurant = await Restaurant.findByPk(req.params.restaurantId)
+    restaurant.sortByPrice = !restaurant.sortByPrice
+    await restaurant.save()
+    res.json(restaurant)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
+
 const RestaurantController = {
   index,
   indexOwner,
   create,
   show,
   update,
-  destroy
+  destroy,
+  toggleProductsSorting
 }
 export default RestaurantController
