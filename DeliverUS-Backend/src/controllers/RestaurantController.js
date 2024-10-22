@@ -1,4 +1,5 @@
-import { Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
+import { sequelizeSession, Restaurant, Product, RestaurantCategory, ProductCategory, Order } from '../models/models.js'
+import { Op } from 'sequelize'
 
 const index = async function (req, res) {
   try {
@@ -28,7 +29,8 @@ const indexOwner = async function (req, res) {
         include: [{
           model: RestaurantCategory,
           as: 'restaurantCategory'
-        }]
+        }],
+        order: [['status', 'ASC'], ['name', 'ASC']]
       })
     res.json(restaurants)
   } catch (err) {
@@ -95,12 +97,39 @@ const destroy = async function (req, res) {
   }
 }
 
+const toggleOnline = async function (req, res) {
+  const t = await sequelizeSession.transaction()
+  try {
+    const restaurant = await Restaurant.findByPk(req.params.restaurantId, { transaction: t })
+    const count = await Order.count({
+      where: {
+        restaurantId: req.params.restaurantId,
+        deliveredAt: { [Op.is]: null }
+      }
+    }, { lock: true, transaction: t })
+    if ((restaurant.status === 'online' || restaurant.status === 'offline') && count === 0) {
+      const newStatus = restaurant.status === 'online' ? 'offline' : 'online'
+      await Restaurant.update(
+        { status: newStatus },
+        { where: { id: req.params.restaurantId } },
+        { transaction: t })
+    }
+    await t.commit()
+    const updatedRestaurant = await Restaurant.findByPk(req.params.restaurantId)
+    res.json(updatedRestaurant)
+  } catch (err) {
+    await t.rollback()
+    res.status(500).send(err)
+  }
+}
+
 const RestaurantController = {
   index,
   indexOwner,
   create,
   show,
   update,
-  destroy
+  destroy,
+  toggleOnline
 }
 export default RestaurantController
