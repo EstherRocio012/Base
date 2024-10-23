@@ -56,6 +56,17 @@ module.exports = {
         ],
         defaultValue: 'offline'
       },
+      discountCode: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        len: [1, 10]
+      },
+      discount: {
+        allowNull: true,
+        type: Sequelize.DOUBLE,
+        min: 1,
+        max: 99
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

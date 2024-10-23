@@ -59,6 +59,14 @@ const loadModel = (sequelize, DataTypes) => {
         'temporarily closed'
       ]
     },
+    discountCode: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    discount: {
+      allowNull: true,
+      type: DataTypes.DOUBLE
+    },
     restaurantCategoryId: {
       allowNull: false,
       type: DataTypes.INTEGER
