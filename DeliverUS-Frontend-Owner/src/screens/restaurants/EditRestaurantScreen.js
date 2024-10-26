@@ -15,14 +15,17 @@ import { ErrorMessage, Formik } from 'formik'
 import TextError from '../../components/TextError'
 import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
 import { buildInitialValues } from '../Helper'
+import ConfirmationModal from '../../components/ConfirmationModal'
+import TextSemibold from '../../components/TextSemibold'
 
 export default function EditRestaurantScreen ({ navigation, route }) {
   const [open, setOpen] = useState(false)
   const [restaurantCategories, setRestaurantCategories] = useState([])
   const [backendErrors, setBackendErrors] = useState()
   const [restaurant, setRestaurant] = useState({})
+  const [percentageShowDialog, setPercentageShowDialog] = useState(false)
 
-  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null })
+  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null, percentage: 0.0 })
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -56,7 +59,11 @@ export default function EditRestaurantScreen ({ navigation, route }) {
       .number()
       .positive()
       .integer()
-      .required('Restaurant category is required')
+      .required('Restaurant category is required'),
+    percentage: yup
+      .number()
+      .max(5)
+      .min(-5)
   })
 
   useEffect(() => {
@@ -129,6 +136,11 @@ export default function EditRestaurantScreen ({ navigation, route }) {
 
   const updateRestaurant = async (values) => {
     setBackendErrors([])
+    if (values.percentage !== 0 && !percentageShowDialog) {
+      setPercentageShowDialog(true)
+    } else {
+      setPercentageShowDialog(false)
+    }
     try {
       const updatedRestaurant = await update(restaurant.id, values)
       showMessage({
@@ -178,6 +190,24 @@ export default function EditRestaurantScreen ({ navigation, route }) {
                 name='shippingCosts'
                 label='Shipping costs:'
               />
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+                <Pressable
+                  onPress= {() => {
+                    const newPercentage = values.percentage + 0.5
+                    if (newPercentage < 5) setFieldValue('percentage', newPercentage)
+                  }}>
+                    <MaterialCommunityIcons name= {'arrow-up-circle'} color={GlobalStyles.brandSecondaryTap} size={40}/>
+                </Pressable>
+                <TextSemibold>Porcentaje actual: <TextSemibold textStyle={{ color: GlobalStyles.brandPrimary }}>{values.percentage.toFixed(1)}%</TextSemibold></TextSemibold>
+                <Pressable
+                  onPress= {() => {
+                    const newPercentage = values.percentage - 0.5
+                    if (newPercentage > -5) setFieldValue('percentage', newPercentage)
+                  }}>
+                    <MaterialCommunityIcons name= {'arrow-down-circle'} color={GlobalStyles.brandSecondaryTap} size={40}/>
+                </Pressable>
+              </View>
+
               <InputItem
                 name='email'
                 label='Email:'
@@ -252,6 +282,11 @@ export default function EditRestaurantScreen ({ navigation, route }) {
               </Pressable>
             </View>
           </View>
+          <ConfirmationModal
+            isVisible={percentageShowDialog}
+            onCancel={() => setPercentageShowDialog(false)}
+            onConfirm={() => updateRestaurant(values)}>
+          </ConfirmationModal>
         </ScrollView>
       )}
     </Formik>
