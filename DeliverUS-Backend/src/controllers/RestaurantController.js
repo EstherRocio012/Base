@@ -107,8 +107,8 @@ const promote = async function (req, res) {
     })
     if (existingPromotedRestaurant) {
       await Restaurant.update({ promoted: false }, { where: { id: existingPromotedRestaurant.id } }, { transaction: t })
-      await Restaurant.update({ promoted: true }, { where: { id: req.params.restaurantId } }, { transaction: t })
     }
+    await Restaurant.update({ promoted: true }, { where: { id: req.params.restaurantId } }, { transaction: t })
     await t.commit()
     const updatedRestaurant = await Restaurant.findByPk(req.params.restaurantId)
     res.json(updatedRestaurant)
