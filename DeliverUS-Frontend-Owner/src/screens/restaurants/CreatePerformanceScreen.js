@@ -33,6 +33,7 @@ export default function CreatePerformanceScreen ({ navigation, route }) {
         style: GlobalStyles.flashStyle,
         titleStyle: GlobalStyles.flashTextStyle
       })
+      navigation.navigate('RestaurantScreen', { dirty: true })
     } catch (error) {
       console.log(error)
       setBackendErrors(error.errors)
