@@ -58,7 +58,7 @@ const show = async function (req, res) {
         model: Product,
         as: 'products',
         where: {
-          visibleUntil: { [Sequelize.Op.or]: [{ [Sequelize.Op.eq]: null }, { [Sequelize.Op.gt]: currentDate }] }
+          visibleUntil: { [Sequelize.Op.or]: [{ [Sequelize.Op.eq]: null }, { [Sequelize.Op.gte]: currentDate }] }
         },
         include: { model: ProductCategory, as: 'productCategory' }
       },

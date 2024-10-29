@@ -29,7 +29,7 @@ const create = [
   check('image').custom((value, { req }) => {
     return checkFileMaxSize(req, 'image', maxFileSize)
   }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB'),
-  check('visibleUntil').optional().isDate().toDate(),
+  check('visibleUntil').optional().toDate(),
   check('visibleUntil').custom((value, { req }) => {
     const currentDate = new Date()
     if (value && value < currentDate) {
@@ -58,7 +58,7 @@ const update = [
     return checkFileMaxSize(req, 'image', maxFileSize)
   }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB'),
   check('restaurantId').not().exists(),
-  check('visibleUntil').optional().isDate().toDate(),
+  check('visibleUntil').optional().toDate(),
   check('visibleUntil').custom((value, { req }) => {
     const currentDate = new Date()
     if (value && value < currentDate) {
